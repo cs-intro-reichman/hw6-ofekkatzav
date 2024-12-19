@@ -60,6 +60,8 @@ import java.io.File;
 import java.io.IOException;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import java.util.LinkedList;
@@ -74,6 +76,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
+import java.net.URI;
+import java.net.URL;
 
 /**
  *  <p><b>Overview.</b>
@@ -1422,37 +1426,37 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
     // get an image from the given filename
     private static Image getImage(String filename) {
         if (filename == null) throw new IllegalArgumentException();
-
+    
         // to read from file
         ImageIcon icon = new ImageIcon(filename);
-
+    
         // try to read from URL
         if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             try {
-                URL url = new URL(filename);
+                URL url = new URI(filename).toURL();
                 icon = new ImageIcon(url);
-            }
-            catch (MalformedURLException e) {
-                /* not a url */
+            } catch (URISyntaxException | MalformedURLException e) {
+                throw new IllegalArgumentException("Invalid URI or URL syntax: " + filename, e);
             }
         }
-
+    
         // in case file is inside a .jar (classpath relative to StdDraw)
         if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             URL url = StdDraw.class.getResource(filename);
             if (url != null)
                 icon = new ImageIcon(url);
         }
-
+    
         // in case file is inside a .jar (classpath relative to root of jar)
         if (icon.getImageLoadStatus() != MediaTracker.COMPLETE) {
             URL url = StdDraw.class.getResource("/" + filename);
             if (url == null) throw new IllegalArgumentException("image " + filename + " not found");
             icon = new ImageIcon(url);
         }
-
+    
         return icon.getImage();
     }
+    
 
    /***************************************************************************
     * [Summer 2016] Should we update to use ImageIO instead of ImageIcon()?
