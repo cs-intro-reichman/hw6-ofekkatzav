@@ -8,8 +8,7 @@ public class Runigram {
 		//// Hide / change / add to the testing code below, as needed.
 		
 		// Tests the reading and printing of an image:	
-		Color[][] pic1 = read("thor.ppm");
-		Color[][] pic2 = read("xmen.ppm");
+		Color[][] pic1 = read("tinypic.ppm");
 		//print(tinypic);
 		//System.out.println();
 		//print(blend(tinypic,tinypic2,0.25));
@@ -23,7 +22,6 @@ public class Runigram {
 		Color c1 = new Color(100, 40, 100);
 		Color c2 = new Color(200, 20, 40);
 		
-		morph(pic1,pic2,5);
 
 
 		// Tests the horizontal flipping of an image:

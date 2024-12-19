@@ -6,7 +6,7 @@ import java.awt.Color;
  * of the PPM file of a source image, a string representing the name of the PPM file
  * of a target image, and the number of morphing steps (an int). 
  * For example, to morph the cake into ironman in 50 steps, use:
- * java Editor3 cake.ppm ironman.ppm 50
+ * java Editor4 cake.ppm
  * Note: There is no need to scale the target image to the size of the source
  * image, since Runigram.morph performs this action.
  */
