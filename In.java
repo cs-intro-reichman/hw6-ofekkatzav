@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -21,6 +23,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.net.URI;
+import java.net.URL;
 
 /**
  *  <i>Input</i>. This class provides methods for reading strings
@@ -153,47 +157,44 @@ public final class In {
      * @throws IllegalArgumentException if {@code name} is {@code null}
      */
     public In(String name) {
-        if (name == null) throw new IllegalArgumentException("argument is null");
-        if (name.length() == 0) throw new IllegalArgumentException("argument is the empty string");
-        try {
-            // first try to read file from local file system
-            File file = new File(name);
-            if (file.exists()) {
-                // for consistency with StdIn, wrap with BufferedInputStream instead of use
-                // file as argument to Scanner
-                FileInputStream fis = new FileInputStream(file);
-                scanner = new Scanner(new BufferedInputStream(fis), CHARSET_NAME);
-                scanner.useLocale(LOCALE);
-                return;
-            }
-
-            // resource relative to .class file
-            URL url = getClass().getResource(name);
-
-            // resource relative to classloader root
-            if (url == null) {
-                url = getClass().getClassLoader().getResource(name);
-            }
-
-            // or URL from web
-            if (url == null) {
-                url = new URL(name);
-            }
-
-            URLConnection site = url.openConnection();
-
-            // in order to set User-Agent, replace above line with these two
-            // HttpURLConnection site = (HttpURLConnection) url.openConnection();
-            // site.addRequestProperty("User-Agent", "Mozilla/4.76");
-
-            InputStream is     = site.getInputStream();
-            scanner            = new Scanner(new BufferedInputStream(is), CHARSET_NAME);
+    if (name == null) throw new IllegalArgumentException("argument is null");
+    if (name.length() == 0) throw new IllegalArgumentException("argument is the empty string");
+    try {
+        // First, try to read file from local file system
+        File file = new File(name);
+        if (file.exists()) {
+            FileInputStream fis = new FileInputStream(file);
+            scanner = new Scanner(new BufferedInputStream(fis), CHARSET_NAME);
             scanner.useLocale(LOCALE);
+            return;
         }
-        catch (IOException ioe) {
-            throw new IllegalArgumentException("Could not open " + name, ioe);
+
+        // Try as a resource relative to .class file
+        URL url = getClass().getResource(name);
+
+        // Try as a resource relative to classloader root
+        if (url == null) {
+            url = getClass().getClassLoader().getResource(name);
         }
+
+        // Finally, try as a web URL
+        if (url == null) {
+            try {
+                url = new URI(name).toURL();
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Invalid URI syntax: " + name, e);
+            }
+        }
+
+        URLConnection site = url.openConnection();
+        InputStream is = site.getInputStream();
+        scanner = new Scanner(new BufferedInputStream(is), CHARSET_NAME);
+        scanner.useLocale(LOCALE);
+
+    } catch (IOException ioe) {
+        throw new IllegalArgumentException("Could not open " + name, ioe);
     }
+}
 
     /**
      * Initializes an input stream from a given {@link Scanner} source; use with
